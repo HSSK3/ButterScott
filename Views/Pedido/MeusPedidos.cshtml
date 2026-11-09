@@ -1,0 +1,79 @@
+
+@model List<ButterScott.Models.Pedido>
+
+@{
+    ViewData["Title"] = "Meus pedidos";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<div class="container py-4">
+    <h1 class="mb-3">Meus pedidos</h1>
+
+    <p class="text-muted mb-4">
+        Confira o histórico das suas compras no ButterScott.
+    </p>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            Você ainda não realizou nenhum pedido.
+        </div>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-primary">
+            Ver cupcakes
+        </a>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th class="text-end">Valor total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pedido in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <a asp-controller="Pedido"
+                                asp-action="Detalhes"
+                                asp-route-id="@pedido.id_pedido"
+                                class="fw-semibold text-decoration-none">
+                                    #@pedido.id_pedido
+                                </a>
+                            </td>
+
+                            <td>
+                                @pedido.data_pedido.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @pedido.status
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <strong>
+                                    @pedido.valor_total.ToString("C", cultura)
+                                </strong>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn btn-outline-secondary mt-3">
+        Voltar à loja
+    </a>
+</div>

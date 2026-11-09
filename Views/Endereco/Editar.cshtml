@@ -1,0 +1,96 @@
+
+@model ButterScott.Models.Endereco
+
+@{
+    ViewData["Title"] = "Editar endereço";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4">Editar endereço</h2>
+
+    <form asp-controller="Endereco"
+          asp-action="SalvarEdicao"
+          asp-route-id="@Model.id_endereco"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="identificacao" class="form-label">
+                Identificação
+            </label>
+            <input asp-for="identificacao" class="form-control"
+                   placeholder="Ex.: Casa, Trabalho" />
+            <span asp-validation-for="identificacao"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 mb-3">
+                <label asp-for="rua" class="form-label">Rua</label>
+                <input asp-for="rua" class="form-control" />
+                <span asp-validation-for="rua"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label asp-for="numero" class="form-label">Número</label>
+                <input asp-for="numero" class="form-control" />
+                <span asp-validation-for="numero"
+                      class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="complemento" class="form-label">
+                Complemento
+            </label>
+            <input asp-for="complemento" class="form-control" />
+            <span asp-validation-for="complemento"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="bairro" class="form-label">Bairro</label>
+            <input asp-for="bairro" class="form-control" />
+            <span asp-validation-for="bairro"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="cidade" class="form-label">Cidade</label>
+                <input asp-for="cidade" class="form-control" />
+                <span asp-validation-for="cidade"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="estado" class="form-label">Estado</label>
+                <input asp-for="estado" class="form-control" />
+                <span asp-validation-for="estado"
+                      class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="cep" class="form-label">CEP</label>
+            <input asp-for="cep" class="form-control" />
+            <span asp-validation-for="cep"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Salvar alterações
+        </button>
+
+        <a asp-controller="Endereco"
+           asp-action="Index"
+           class="btn btn-outline-secondary ms-2">
+            Cancelar
+        </a>
+    </form>
+</div>

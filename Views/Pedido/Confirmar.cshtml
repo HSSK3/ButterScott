@@ -1,0 +1,258 @@
+
+@model List<ButterScott.Models.ItemCarrinho>
+
+@{
+    ViewData["Title"] = "Confirmar pedido";
+
+    var enderecos = ViewBag.Enderecos as List<ButterScott.Models.Endereco>
+        ?? new List<ButterScott.Models.Endereco>();
+
+    var cupom = ViewBag.Cupom as ButterScott.Models.Cupom;
+
+    decimal subtotal = ViewBag.Subtotal != null
+        ? (decimal)ViewBag.Subtotal
+        : Model.Sum(item => item.Subtotal);
+
+    decimal desconto = ViewBag.Desconto != null
+        ? (decimal)ViewBag.Desconto
+        : 0m;
+
+    decimal total = subtotal - desconto;
+
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<div class="container py-4">
+    <h1 class="mb-3">Confirmar pedido</h1>
+
+    <p class="text-muted mb-4">
+        Confira os cupcakes e os valores antes de continuar.
+    </p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Seu carrinho está vazio. Adicione cupcakes antes de continuar.
+        </div>
+
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+            Ver cupcakes
+        </a>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+
+                @foreach (var item in Model)
+                {
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-3 gap-3">
+                        <div>
+                            <h5 class="mb-1">@item.Nome</h5>
+                            <p class="text-muted mb-0">
+                                Quantidade: @item.Quantidade
+                            </p>
+                        </div>
+
+                        <strong>
+                            @((item.Preco * item.Quantidade).ToString("C", cultura))
+                        </strong>
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <h4>Resumo do pedido</h4>
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <span>Subtotal</span>
+                        <span>@subtotal.ToString("C", cultura)</span>
+                    </div>
+
+                    @if (cupom != null && desconto > 0)
+                    {
+                        <div class="d-flex justify-content-between text-success mt-2">
+                            <span>
+                                Cupom: @cupom.codigo
+                            </span>
+                            <span>
+                                -@desconto.ToString("C", cultura)
+                            </span>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Total do pedido</strong>
+
+                        <h3 class="mb-0" style="color: #d85f50;">
+                            @total.ToString("C", cultura)
+                        </h3>
+                    </div>
+                </div>
+
+                <form asp-controller="Carrinho"
+                      asp-action="Finalizar"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-4 mt-4">
+                        <h4 class="mb-3">Endereço de entrega</h4>
+
+                        @if (enderecos.Count == 0)
+                        {
+                            <div class="alert alert-warning">
+                                Você ainda não possui endereços cadastrados.
+
+                                <a asp-controller="Endereco" asp-action="Criar">
+                                    Cadastrar endereço
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var endereco in enderecos)
+                            {
+                                <div class="form-check border rounded p-3 mb-2">
+                                    <input class="form-check-input"
+                                           type="radio"
+                                           name="idEndereco"
+                                           id="endereco_@endereco.id_endereco"
+                                           value="@endereco.id_endereco"
+                                           checked="@endereco.principal"
+                                           required />
+
+                                    <label class="form-check-label"
+                                           for="endereco_@endereco.id_endereco">
+
+                                        <strong>
+                                            @(string.IsNullOrWhiteSpace(endereco.identificacao)
+                                                ? "Endereço"
+                                                : endereco.identificacao)
+                                        </strong>
+
+                                        @if (endereco.principal)
+                                        {
+                                            <span class="badge ms-2"
+                                                  style="background-color: #89b2a2;">
+                                                Principal
+                                            </span>
+                                        }
+
+                                        <br />
+
+                                        @endereco.rua, @endereco.numero
+                                        <br />
+                                        @endereco.bairro - @endereco.cidade
+                                        <br />
+                                        CEP: @endereco.cep
+                                    </label>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="mb-3">Forma de pagamento</h4>
+
+                        <p class="text-muted">
+                            Escolha como deseja realizar o pagamento do pedido.
+                        </p>
+
+                        <div class="form-check border rounded p-3 mb-2">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="formaPagamento"
+                                   id="pagamentoPix"
+                                   value="PIX"
+                                   required />
+
+                            <label class="form-check-label"
+                                   for="pagamentoPix">
+                                <strong>PIX</strong>
+                                <p class="text-muted mb-0">
+                                    Pagamento demonstrativo por código PIX fictício.
+                                </p>
+                            </label>
+                        </div>
+
+                        <div class="form-check border rounded p-3 mb-2">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="formaPagamento"
+                                   id="pagamentoCartao"
+                                   value="Cartao"
+                                   required />
+
+                            <label class="form-check-label"
+                                   for="pagamentoCartao">
+                                <strong>Cartão de crédito</strong>
+                                <p class="text-muted mb-0">
+                                    Simulação de pagamento com cartão, sem utilizar dados reais.
+                                </p>
+                            </label>
+                        </div>
+
+                        <div class="form-check border rounded p-3 mb-2">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="formaPagamento"
+                                   id="pagamentoBoleto"
+                                   value="Boleto"
+                                   required />
+
+                            <label class="form-check-label"
+                                   for="pagamentoBoleto">
+                                <strong>Boleto bancário</strong>
+                                <p class="text-muted mb-0">
+                                    Boleto fictício gerado apenas para demonstração.
+                                </p>
+                            </label>
+                        </div>
+
+                        <div class="form-check border rounded p-3 mb-2">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="formaPagamento"
+                                   id="pagamentoNaEntrega"
+                                   value="NaEntrega"
+                                   required />
+
+                            <label class="form-check-label"
+                                   for="pagamentoNaEntrega">
+                                <strong>Pagamento na entrega</strong>
+                                <p class="text-muted mb-0">
+                                    Pagamento registrado para ser realizado no recebimento do pedido.
+                                </p>
+                            </label>
+                        </div>
+
+                        <small class="text-muted">
+                            Todas as opções fazem parte de uma simulação acadêmica.
+                            Nenhuma transação financeira real será realizada.
+                        </small>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <a asp-controller="Carrinho"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            Voltar ao carrinho
+                        </a>
+
+                        @if (enderecos.Count > 0)
+                        {
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    style="background-color: #fb7968; border-color: #fb7968;">
+                                Confirmar compra
+                            </button>
+                        }
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    }
+</div>

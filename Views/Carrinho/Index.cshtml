@@ -1,0 +1,218 @@
+
+@model List<ButterScott.Models.ItemCarrinho>
+
+@{
+    ViewData["Title"] = "Meu Carrinho";
+
+    var cupom = ViewBag.Cupom as ButterScott.Models.Cupom;
+    decimal subtotal = ViewBag.Subtotal != null
+        ? (decimal)ViewBag.Subtotal
+        : Model.Sum(item => item.Subtotal);
+
+    decimal desconto = ViewBag.Desconto != null
+        ? (decimal)ViewBag.Desconto
+        : 0m;
+
+    decimal total = subtotal - desconto;
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Meu Carrinho</h1>
+
+    @if (TempData["MensagemCarrinho"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["MensagemCarrinho"]
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <h3>Seu carrinho está vazio</h3>
+            <p>Que tal escolher alguns cupcakes deliciosos?</p>
+
+            <a asp-controller="Explorar"
+                asp-action="Index"
+               class="btn btn-primary mt-3">
+                Ver cupcakes
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                @foreach (var item in Model)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-4 col-md-3">
+                                    @if (!string.IsNullOrEmpty(item.ImagemUrl))
+                                    {
+                                        <img src="@item.ImagemUrl"
+                                             alt="@item.Nome"
+                                             class="img-fluid rounded" />
+                                    }
+                                </div>
+
+                                <div class="col-8 col-md-9">
+                                    <h5>@item.Nome</h5>
+
+                                    <p class="mb-1">
+                                        Preço unitário:
+                                        @item.Preco.ToString("C")
+                                    </p>
+
+                                    <div class="d-flex align-items-center gap-2 my-2">
+                                        <span>Quantidade:</span>
+
+                                        <form asp-controller="Carrinho"
+                                              asp-action="AlterarQuantidade"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.IdProduto" />
+                                            <input type="hidden" name="quantidade" value="@(item.Quantidade - 1)" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    aria-label="Diminuir quantidade">
+                                                -
+                                            </button>
+                                        </form>
+
+                                        <span class="fw-bold">@item.Quantidade</span>
+
+                                        <form asp-controller="Carrinho"
+                                              asp-action="AlterarQuantidade"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.IdProduto" />
+                                            <input type="hidden" name="quantidade" value="@(item.Quantidade + 1)" />
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-secondary btn-sm"
+                                                    aria-label="Aumentar quantidade">
+                                                +
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <strong>
+                                        Subtotal: @item.Subtotal.ToString("C")
+                                    </strong>
+
+                                    <form asp-controller="Carrinho"
+                                          asp-action="Remover"
+                                          method="post"
+                                          class="mt-2">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.IdProduto" />
+
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            Remover
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Resumo do pedido</h4>
+
+                        <hr />
+
+                        <p>
+                            Itens: @Model.Sum(item => item.Quantidade)
+                        </p>
+
+                        <p class="mb-2">
+                            Subtotal: @subtotal.ToString("C")
+                        </p>
+
+                        <hr />
+
+                        <h5 class="mb-3">Cupom de desconto</h5>
+
+                        @if (cupom != null)
+                        {
+                            <div class="alert alert-success">
+                                <strong>@cupom.codigo</strong>
+                                <p class="mb-1">
+                                    @cupom.descricao
+                                </p>
+                                <span>
+                                    Desconto aplicado: @desconto.ToString("C")
+                                </span>
+                            </div>
+
+                            <form asp-controller="Carrinho"
+                                  asp-action="RemoverCupom"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm w-100">
+                                    Remover cupom
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-controller="Carrinho"
+                                  asp-action="AplicarCupom"
+                                  method="post">
+                                @Html.AntiForgeryToken()
+
+                                <div class="input-group">
+                                    <input type="text"
+                                           name="codigo"
+                                           class="form-control"
+                                           placeholder="Digite seu cupom"
+                                           maxlength="40"
+                                           required />
+
+                                    <button type="submit"
+                                            class="btn btn-outline-primary">
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </form>
+                        }
+
+                        <hr />
+
+                        @if (desconto > 0)
+                        {
+                            <p class="text-success">
+                                Desconto: -@desconto.ToString("C")
+                            </p>
+                        }
+
+                        <h5>
+                            Total: @total.ToString("C")
+                        </h5>
+
+                        <a asp-controller="Carrinho"
+                           asp-action="Confirmar"
+                           class="btn btn-primary w-100 mt-3">
+                            Finalizar pedido
+                        </a>
+
+                        <a asp-controller="Explorar"
+                            asp-action="Index"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Continuar comprando
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

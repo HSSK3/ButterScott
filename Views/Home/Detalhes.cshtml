@@ -1,0 +1,84 @@
+
+@model ButterScott.Models.Produto
+
+@{
+    ViewData["Title"] = Model.nome;
+}
+
+<div class="container py-5">
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn btn-outline-secondary mb-4">
+        &larr; Voltar aos cupcakes
+    </a>
+
+    <div class="row g-5 align-items-center">
+        <div class="col-md-6">
+            @if (!string.IsNullOrWhiteSpace(Model.imagem_url))
+            {
+                <img src="@Model.imagem_url"
+                     alt="@Model.nome"
+                     class="img-fluid rounded-4 shadow-sm w-100"
+                     style="max-height: 500px; object-fit: cover;" />
+            }
+        </div>
+
+        <div class="col-md-6">
+            <p class="text-uppercase fw-bold"
+               style="letter-spacing: 2px; color: #89b2a2;">
+                Conheça nosso doce
+            </p>
+
+            <h1 class="display-5 fw-bold mb-3">
+                @Model.nome
+            </h1>
+
+            <p class="fs-5 text-muted">
+                Sabor: @Model.sabor
+            </p>
+
+            <p class="mb-4" style="line-height: 1.8;">
+                @(string.IsNullOrWhiteSpace(Model.descricao)
+                    ? "Um doce preparado especialmente para você."
+                    : Model.descricao)
+            </p>
+
+            <p class="display-6 fw-bold"
+               style="color: #d85f50;">
+                @Model.preco.ToString(
+                    "C",
+                    System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
+            </p>
+
+            @if (Model.estoque > 0)
+            {
+                <p class="text-success fw-semibold">
+                    Disponível em estoque
+                </p>
+            }
+            else
+            {
+                <p class="text-danger fw-semibold">
+                    Produto indisponível no momento
+                </p>
+            }
+            
+            
+            @if (Model.estoque > 0)
+            {
+                <form asp-controller="Carrinho"
+                      asp-action="Adicionar"
+                      method="post">
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.id_produto" />
+
+                    <button type="submit" class="btn btn-primary mt-3">
+                        Adicionar ao carrinho
+                    </button>
+                </form>
+            }
+
+        </div>
+    </div>
+</div>

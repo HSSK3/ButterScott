@@ -1,0 +1,234 @@
+
+@model ButterScott.Models.Pedido
+
+@{
+    ViewData["Title"] = "Resultado do Pedido";
+
+    string titulo;
+    string mensagem;
+    string corStatus = "#89b2a2";
+
+    switch (Model.forma_pagamento)
+    {
+        case "PIX":
+            titulo = "Pedido realizado!";
+            mensagem = "Utilize o código demonstrativo abaixo para visualizar como seria um pagamento via PIX.";
+            break;
+
+        case "Cartao":
+            titulo = "Pagamento aprovado (simulação)!";
+            mensagem = "O pagamento com cartão foi aprovado apenas para fins demonstrativos.";
+            break;
+
+        case "Boleto":
+            titulo = "Pedido realizado!";
+            mensagem = "Confira abaixo os dados fictícios do boleto demonstrativo.";
+            break;
+
+        case "NaEntrega":
+            titulo = "Pedido realizado!";
+            mensagem = "O pagamento será realizado no momento da entrega.";
+            break;
+
+        default:
+            titulo = "Pedido realizado!";
+            mensagem = "Seu pedido foi registrado com sucesso.";
+            break;
+    }
+}
+
+<div class="container py-5">
+    <div class="mx-auto" style="max-width: 750px;">
+
+        <div class="text-center mb-4">
+            <div class="mb-3">
+                <img src="~/images/Logo.png"
+                     alt="ButterScott"
+                     style="max-width: 170px; height: auto;" />
+            </div>
+
+            <h2 style="color: #493a36;">@titulo</h2>
+
+            <p style="color: #493a36;">
+                @mensagem
+            </p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4"
+             style="background-color: #fffaf5;">
+
+            <div class="card-body p-4">
+
+                <h4 class="mb-3" style="color: #493a36;">
+                    Resumo do pedido
+                </h4>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Número do pedido:</span>
+                    <strong>#@Model.id_pedido</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Data:</span>
+                    <strong>@Model.data_pedido.ToString("dd/MM/yyyy HH:mm")</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Forma de pagamento:</span>
+                    <strong>
+                        @(Model.forma_pagamento switch
+                        {
+                            "PIX" => "PIX",
+                            "Cartao" => "Cartão de crédito",
+                            "Boleto" => "Boleto bancário",
+                            "NaEntrega" => "Pagamento na entrega",
+                            _ => Model.forma_pagamento
+                        })
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Status do pagamento:</span>
+                    <strong style="color: @corStatus;">
+                        @Model.status_pagamento
+                    </strong>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between">
+                    <strong class="fs-5">Total:</strong>
+                    <strong class="fs-5" style="color: #fb7968;">
+                        @Model.valor_total.ToString("C")
+                    </strong>
+                </div>
+
+            </div>
+        </div>
+
+        @if (Model.forma_pagamento == "PIX")
+        {
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+
+                    <h4 style="color: #493a36;">PIX demonstrativo</h4>
+
+                    <p class="text-muted">
+                        Este código é fictício e serve somente para demonstrar
+                        a interface da aplicação.
+                    </p>
+
+                    <div class="p-3 rounded-3 mb-3"
+                         style="background-color: #fafad4; overflow-wrap: anywhere;">
+                        <strong>@ViewBag.CodigoPix</strong>
+                    </div>
+
+                    <span class="badge rounded-pill"
+                          style="background-color: #f9c593; color: #493a36;">
+                        Simulação acadêmica — não é um PIX válido
+                    </span>
+
+                </div>
+            </div>
+        }
+
+        @if (Model.forma_pagamento == "Boleto")
+        {
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+
+                    <h4 class="text-center mb-3"
+                        style="color: #493a36;">
+                        Boleto demonstrativo
+                    </h4>
+
+                    <p class="text-muted text-center">
+                        Dados fictícios para demonstração da funcionalidade.
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Linha digitável:</strong>
+                        <div class="p-3 rounded-3 mt-2"
+                             style="background-color: #fafad4; overflow-wrap: anywhere;">
+                            @ViewBag.CodigoBoleto
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Vencimento demonstrativo:</strong>
+                        <p class="mb-0">
+                            @(((DateTime)ViewBag.VencimentoBoleto).ToString("dd/MM/yyyy"))
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="badge rounded-pill"
+                              style="background-color: #f9c593; color: #493a36;">
+                            Simulação acadêmica — não pagar
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+        @if (Model.forma_pagamento == "Cartao")
+        {
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+
+                    <h4 style="color: #493a36;">
+                        Pagamento aprovado!
+                    </h4>
+
+                    <p class="mb-2">
+                        A aprovação foi realizada automaticamente pela
+                        simulação da aplicação.
+                    </p>
+
+                    <span class="badge rounded-pill"
+                          style="background-color: #b0d1b2; color: #493a36;">
+                        Nenhuma transação real foi realizada
+                    </span>
+
+                </div>
+            </div>
+        }
+
+        @if (Model.forma_pagamento == "NaEntrega")
+        {
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+
+                    <h4 style="color: #493a36;">
+                        Pagamento na entrega
+                    </h4>
+
+                    <p class="mb-0">
+                        O pagamento ficará pendente até o recebimento do pedido.
+                    </p>
+
+                </div>
+            </div>
+        }
+
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+
+            <a asp-controller="Pedido"
+               asp-action="MeusPedidos"
+               class="btn rounded-pill px-4 py-2"
+               style="background-color: #89b2a2; color: white;">
+                Meus pedidos
+            </a>
+
+            <a asp-controller="Explorar"
+               asp-action="Index"
+               class="btn rounded-pill px-4 py-2"
+               style="background-color: #fb7968; color: white;">
+                Continuar comprando
+            </a>
+
+        </div>
+
+    </div>
+</div>

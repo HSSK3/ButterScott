@@ -1,0 +1,173 @@
+
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Detalhes do pedido";
+    var pedido = ViewBag.Pedido as ButterScott.Models.Pedido;
+    var entrega = ViewBag.Entrega;
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<div class="container py-4">
+    <h1 class="mb-3">Detalhes do pedido</h1>
+
+    @if (pedido != null)
+    {
+        @* Dados gerais do pedido *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <span class="text-muted">Número do pedido</span>
+                        <h5>#@pedido.id_pedido</h5>
+                    </div>
+
+                    <div class="col-md-3">
+                        <span class="text-muted">Data</span>
+                        <h5>@pedido.data_pedido.ToString("dd/MM/yyyy HH:mm")</h5>
+                    </div>
+
+                    <div class="col-md-3">
+                        <span class="text-muted">Status</span>
+                        <h5>@pedido.status</h5>
+                    </div>
+
+                    <div class="col-md-3">
+                        <span class="text-muted">Valor total</span>
+                        <h5 style="color: #d85f50;">
+                            @pedido.valor_total.ToString("C", cultura)
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Informações de entrega *@
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">Informações de entrega</h4>
+
+                @if (entrega == null)
+                {
+                    <p class="text-muted mb-0">
+                        Ainda não há informações de entrega disponíveis.
+                    </p>
+                }
+                else
+                {
+                    <p>
+                        <strong>Status:</strong> @entrega.status
+                    </p>
+
+                    @if (!string.IsNullOrWhiteSpace((string?)entrega.codigo_rastreamento))
+                    {
+                        <p>
+                            <strong>Código de rastreamento:</strong>
+                            @entrega.codigo_rastreamento
+                        </p>
+                    }
+
+                    <h5 class="mt-3">Endereço de entrega</h5>
+
+                    <p class="mb-1">
+                        @entrega.rua, @entrega.numero
+
+                        @if (!string.IsNullOrWhiteSpace((string?)entrega.complemento))
+                        {
+                            <span> - @entrega.complemento</span>
+                        }
+                    </p>
+
+                    <p class="mb-1">
+                        @entrega.bairro - @entrega.cidade/@entrega.estado
+                    </p>
+
+                    <p class="mb-0">
+                        CEP: @entrega.cep
+                    </p>
+                }
+            </div>
+        </div>
+
+        @* Produtos comprados *@
+        <h4 class="mb-3">Produtos comprados</h4>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                Não foram encontrados itens para este pedido.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th class="text-center">Quantidade</th>
+                            <th class="text-end">Preço unitário</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.nome</td>
+                                <td class="text-center">@item.quantidade</td>
+                                <td class="text-end">
+                                    @(((decimal)item.preco_unitario).ToString("C", cultura))
+                                </td>
+                                <td class="text-end">
+                                    @(((decimal)item.subtotal).ToString("C", cultura))
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @* Resumo dos valores *@
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <strong>
+                        @pedido.valor_subtotal.ToString("C", cultura)
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mt-2">
+                    <span>Entrega</span>
+                    <strong>
+                        @pedido.valor_entrega.ToString("C", cultura)
+                    </strong>
+                </div>
+
+                <div class="d-flex justify-content-between mt-2">
+                    <span>Desconto</span>
+                    <strong>
+                        @pedido.valor_desconto.ToString("C", cultura)
+                    </strong>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between">
+                    <h5>Total</h5>
+                    <h5 style="color: #d85f50;">
+                        @pedido.valor_total.ToString("C", cultura)
+                    </h5>
+                </div>
+            </div>
+        </div>
+    }
+
+    <a asp-controller="Pedido"
+       asp-action="MeusPedidos"
+       class="btn btn-outline-secondary mt-4">
+        Voltar aos meus pedidos
+    </a>
+</div>

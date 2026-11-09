@@ -1,0 +1,153 @@
+
+@model List<ButterScott.Models.Endereco>
+
+@{
+    ViewData["Title"] = "Meus endereços";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="mb-2">Meus endereços</h1>
+            <p class="text-muted mb-0">
+                Gerencie os endereços das suas entregas.
+            </p>
+        </div>
+
+        <a asp-controller="Endereco"
+           asp-action="Criar"
+           class="btn btn-primary">
+            Adicionar endereço
+        </a>
+    </div>
+
+    @if (TempData["MensagemEndereco"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @TempData["MensagemEndereco"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Fechar"></button>
+        </div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h4>Você ainda não tem endereços cadastrados.</h4>
+
+                <p class="text-muted">
+                    Adicione seu primeiro endereço para organizar suas entregas.
+                </p>
+
+                <a asp-controller="Endereco"
+                   asp-action="Criar"
+                   class="btn btn-primary">
+                    Cadastrar primeiro endereço
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var endereco in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between
+                                        align-items-start gap-2 mb-3">
+                                <h5 class="card-title mb-0">
+                                    @(string.IsNullOrWhiteSpace(endereco.identificacao)
+                                        ? "Endereço"
+                                        : endereco.identificacao)
+                                </h5>
+
+                                @if (endereco.principal)
+                                {
+                                    <span class="badge bg-success">
+                                        Principal
+                                    </span>
+                                }
+                            </div>
+
+                            <p class="mb-1">
+                                @endereco.rua, @endereco.numero
+                            </p>
+
+                            @if (!string.IsNullOrWhiteSpace(endereco.complemento))
+                            {
+                                <p class="text-muted mb-1">
+                                    @endereco.complemento
+                                </p>
+                            }
+
+                            <p class="mb-1">@endereco.bairro</p>
+                            <p class="mb-1">
+                                @endereco.cidade - @endereco.estado
+                            </p>
+                            <p class="text-muted mb-0">
+                                CEP: @endereco.cep
+                            </p>
+                            
+                            <a asp-controller="Endereco"
+                                asp-action="Editar"
+                                asp-route-id="@endereco.id_endereco"
+                                class="btn btn-outline-secondary btn-sm mt-2">
+                                    Editar
+                            </a>
+
+
+                            @if (!endereco.principal)
+                            {
+                                <form asp-controller="Endereco"
+                                    asp-action="Excluir"
+                                    asp-route-id="@endereco.id_endereco"
+                                    method="post"
+                                    class="d-inline"
+                                    onsubmit="return confirm('Tem certeza de que deseja excluir este endereço?');">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm mt-2">
+                                        Excluir
+                                    </button>
+                                </form>
+                            }
+
+                            @if (!endereco.principal)
+                            {
+                                <form asp-controller="Endereco"
+                                    asp-action="DefinirPrincipal"
+                                    asp-route-id="@endereco.id_endereco"
+                                    method="post"
+                                    class="mt-3">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                                        Definir como principal
+                                    </button>
+                                </form>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn btn-outline-secondary mt-4">
+        Voltar à loja
+    </a>
+</div>

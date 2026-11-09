@@ -1,0 +1,166 @@
+
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gerenciar entregas";
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<div class="container py-4">
+
+    <h1 class="mb-3">Gerenciar entregas</h1>
+
+    <p class="text-muted mb-4">
+        Consulte os pedidos e atualize o status de suas respectivas entregas.
+    </p>
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Sucesso"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Erro"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Nenhuma entrega foi cadastrada até o momento.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Data do pedido</th>
+                        <th>Valor</th>
+                        <th>Status da entrega</th>
+                        <th>Rastreamento</th>
+                        <th>Datas</th>
+                        <th>Atualizar</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var entrega in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>#@entrega.id_pedido</strong>
+                            </td>
+
+                            <td>
+                                <strong>@entrega.nome</strong>
+                                <br />
+                                <small class="text-muted">
+                                    @entrega.email
+                                </small>
+                            </td>
+
+                            <td>
+                                @(((DateTime)entrega.data_pedido).ToString("dd/MM/yyyy HH:mm"))
+                            </td>
+
+                            <td>
+                                @(((decimal)entrega.valor_total).ToString("C", cultura))
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary">
+                                    @entrega.status
+                                </span>
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace((string?)entrega.codigo_rastreamento)
+                                    ? "Não informado"
+                                    : entrega.codigo_rastreamento)
+                            </td>
+
+                            <td>
+                                <small>
+                                    <strong>Saída:</strong>
+                                    @(entrega.data_saida == null
+                                        ? "Não informada"
+                                        : ((DateTime)entrega.data_saida).ToString("dd/MM/yyyy HH:mm"))
+
+                                    <br />
+
+                                    <strong>Entrega:</strong>
+                                    @(entrega.data_entrega == null
+                                        ? "Não entregue"
+                                        : ((DateTime)entrega.data_entrega).ToString("dd/MM/yyyy HH:mm"))
+                                </small>
+                            </td>
+
+                            <td>
+                                <form asp-controller="Admin"
+                                      asp-action="AtualizarEntrega"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id_entrega"
+                                           value="@entrega.id_entrega" />
+
+                                    <select name="novo_status"
+                                            class="form-select form-select-sm mb-2"
+                                            required>
+
+                                        <option value="Aguardando"
+                                                selected="@(entrega.status == "Aguardando")">
+                                            Aguardando
+                                        </option>
+
+                                        <option value="Em preparo"
+                                                selected="@(entrega.status == "Em preparo")">
+                                            Em preparo
+                                        </option>
+
+                                        <option value="Saiu para entrega"
+                                                selected="@(entrega.status == "Saiu para entrega")">
+                                            Saiu para entrega
+                                        </option>
+
+                                        <option value="Entregue"
+                                                selected="@(entrega.status == "Entregue")">
+                                            Entregue
+                                        </option>
+
+                                        <option value="Cancelada"
+                                                selected="@(entrega.status == "Cancelada")">
+                                            Cancelada
+                                        </option>
+
+                                    </select>
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-primary w-100">
+                                        Salvar alteração
+                                    </button>
+
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    }
+
+</div>

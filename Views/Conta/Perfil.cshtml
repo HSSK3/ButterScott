@@ -1,0 +1,228 @@
+
+@model ButterScott.Models.Cliente
+
+@{
+    ViewData["Title"] = "Meu Perfil";
+}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+
+            <div class="mb-4 text-center">
+                <h1 class="fw-bold" style="color: #fb7968;">
+                    Meu Perfil
+                </h1>
+
+                <p class="text-muted">
+                    Consulte e atualize suas informações pessoais.
+                </p>
+            </div>
+
+            @if (TempData["SucessoPerfil"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["SucessoPerfil"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErroPerfil"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["ErroPerfil"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["SucessoSenha"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["SucessoSenha"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErroSenha"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["ErroSenha"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Dados pessoais -->
+
+            <div class="card border-0 shadow-sm mb-4"
+                 style="border-radius: 16px; background-color: #fffaf5;">
+
+                <div class="card-body p-4 p-md-5">
+
+                    <h4 class="fw-bold mb-4" style="color: #fb7968;">
+                        Dados pessoais
+                    </h4>
+
+                    <form asp-controller="Conta"
+                          asp-action="SalvarPerfil"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-4">
+                            <label for="nome" class="form-label fw-semibold">
+                                Nome completo
+                            </label>
+
+                            <input type="text"
+                                   id="nome"
+                                   name="nome"
+                                   class="form-control"
+                                   value="@Model.nome"
+                                   maxlength="120"
+                                   required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label fw-semibold">
+                                E-mail
+                            </label>
+
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control"
+                                   value="@Model.email"
+                                   maxlength="180"
+                                   required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="telefone" class="form-label fw-semibold">
+                                Telefone
+                            </label>
+
+                            <input type="tel"
+                                   id="telefone"
+                                   name="telefone"
+                                   class="form-control"
+                                   value="@Model.telefone"
+                                   maxlength="20"
+                                   placeholder="Informe seu telefone" />
+
+                            <small class="text-muted">
+                                Campo opcional.
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Data de cadastro
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@Model.data_cadastro.ToString("dd/MM/yyyy")"
+                                   disabled />
+                        </div>
+
+                        <button type="submit"
+                                class="btn fw-semibold px-4"
+                                style="background-color: #fb7968; color: white;">
+                            Salvar alterações
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- Alteração de senha -->
+
+            <div class="card border-0 shadow-sm mb-4"
+                 style="border-radius: 16px; background-color: #fffaf5;">
+
+                <div class="card-body p-4 p-md-5">
+
+                    <h4 class="fw-bold mb-2" style="color: #fb7968;">
+                        Alterar senha
+                    </h4>
+
+                    <p class="text-muted mb-4">
+                        Para sua segurança, informe sua senha atual antes de cadastrar uma nova.
+                    </p>
+
+                    <form asp-controller="Conta"
+                          asp-action="AlterarSenha"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label for="senhaAtual" class="form-label fw-semibold">
+                                Senha atual
+                            </label>
+
+                            <input type="password"
+                                   id="senhaAtual"
+                                   name="senhaAtual"
+                                   class="form-control"
+                                   autocomplete="current-password"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="novaSenha" class="form-label fw-semibold">
+                                Nova senha
+                            </label>
+
+                            <input type="password"
+                                   id="novaSenha"
+                                   name="novaSenha"
+                                   class="form-control"
+                                   minlength="8"
+                                   autocomplete="new-password"
+                                   required />
+
+                            <small class="text-muted">
+                                A senha deve ter pelo menos 8 caracteres.
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmarSenha" class="form-label fw-semibold">
+                                Confirmar nova senha
+                            </label>
+
+                            <input type="password"
+                                   id="confirmarSenha"
+                                   name="confirmarSenha"
+                                   class="form-control"
+                                   minlength="8"
+                                   autocomplete="new-password"
+                                   required />
+                        </div>
+
+                        <button type="submit"
+                                class="btn fw-semibold px-4"
+                                style="background-color: #fb7968; color: white;">
+                            Alterar senha
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="text-center">
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary px-4">
+                    Voltar à página inicial
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

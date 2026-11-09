@@ -1,0 +1,207 @@
+
+@model IEnumerable<ButterScott.Models.Produto>
+
+@{
+    ViewData["Title"] = "Explorar";
+
+    var categorias = ViewBag.Categorias as List<ButterScott.Models.Categoria>
+        ?? new List<ButterScott.Models.Categoria>();
+
+    var produtosNoCarrinho = ViewBag.ProdutosNoCarrinho as HashSet<uint>
+        ?? new HashSet<uint>();
+
+    string? pesquisa = ViewBag.Pesquisa;
+    uint? categoriaId = ViewBag.CategoriaId;
+}
+
+<style>
+    .btn-detalhes {
+        background-color: #ffffff;
+        color: #b85f55;
+        border: 1px solid #f5c9c3;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-detalhes:hover {
+        background-color: #fce4e1;
+        color: #b85f55;
+        border-color: #f5c9c3;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">Explore nossos produtos</h2>
+        <p class="text-muted">
+            Encontre seus cupcakes, bolos e outras delícias favoritas.
+        </p>
+    </div>
+
+    <form asp-controller="Explorar" asp-action="Index"
+          method="get" class="mb-5">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <input type="text"
+                       name="pesquisa"
+                       value="@pesquisa"
+                       class="form-control"
+                       placeholder="Buscar por nome, sabor ou descrição..." />
+            </div>
+
+            <div class="col-md-4">
+                <select name="categoriaId" class="form-select">
+                    <option value="">Todas as categorias</option>
+
+                    @foreach (var categoria in categorias)
+                    {
+                        <option value="@categoria.id_categoria"
+                                selected="@(categoriaId == categoria.id_categoria)">
+                            @categoria.nome
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                    Buscar
+                </button>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">Produtos</h4>
+
+        <span class="text-muted">
+            @Model.Count() produto(s) encontrado(s)
+        </span>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row g-4">
+
+            @foreach (var produto in Model)
+            {
+                bool adicionado = produtosNoCarrinho.Contains(produto.id_produto);
+                bool semEstoque = produto.estoque == 0;
+
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 shadow-sm border-0">
+
+                        @if (!string.IsNullOrEmpty(produto.imagem_url))
+                        {
+                            <img src="@produto.imagem_url"
+                                 class="card-img-top"
+                                 alt="@produto.nome"
+                                 style="height: 200px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                 style="height: 200px;">
+                                <i class="bi bi-cake2 text-muted"
+                                   style="font-size: 3rem;"></i>
+                            </div>
+                        }
+
+                        <div class="card-body d-flex flex-column">
+
+                            <h5 class="card-title fw-bold">
+                                @produto.nome
+                            </h5>
+
+                            <p class="text-muted small mb-2">
+                                Sabor: @produto.sabor
+                            </p>
+
+                            @if (!string.IsNullOrWhiteSpace(produto.descricao))
+                            {
+                                <p class="card-text text-muted small">
+                                    @produto.descricao
+                                </p>
+                            }
+
+                            <h5 class="fw-bold mt-auto mb-3">
+                                @produto.preco.ToString("C2",
+                                    System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
+                            </h5>
+
+                            <form asp-controller="Carrinho"
+                                  asp-action="Adicionar"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@produto.id_produto" />
+
+                                <input type="hidden"
+                                       name="origem"
+                                       value="Explorar" />
+
+                                <button type="submit"
+                                        class="btn btn-primary w-100 mb-2"
+                                        disabled="@(semEstoque || adicionado)">
+
+                                    @if (semEstoque)
+                                    {
+                                        <i class="bi bi-x-circle"></i>
+                                        <span>Sem estoque</span>
+                                    }
+                                    else if (adicionado)
+                                    {
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span>Adicionado ao carrinho</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-cart-plus"></i>
+                                        <span>Adicionar ao carrinho</span>
+                                    }
+
+                                </button>
+                            </form>
+
+                            <a asp-controller="Home"
+                               asp-action="Detalhes"
+                               asp-route-id="@produto.id_produto"
+                               class="btn w-100 btn-detalhes">
+                                Ver detalhes
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-search text-muted"
+               style="font-size: 3rem;"></i>
+
+            <h5 class="mt-3">Nenhum produto encontrado</h5>
+
+            <p class="text-muted">
+                Tente alterar os termos da pesquisa ou selecionar outra categoria.
+            </p>
+
+            <a asp-controller="Explorar"
+               asp-action="Index"
+               class="btn btn-primary">
+                Limpar filtros
+            </a>
+        </div>
+    }
+
+</div>

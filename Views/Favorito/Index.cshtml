@@ -1,0 +1,137 @@
+
+@model IEnumerable<ButterScott.Models.Produto>
+
+@{
+    ViewData["Title"] = "Meus Favoritos";
+
+    var produtosNoCarrinho =
+        ViewBag.ProdutosNoCarrinho as HashSet<uint>
+        ?? new HashSet<uint>();
+}
+
+<div class="container py-5">
+    <h2 class="mb-4">Meus Favoritos</h2>
+
+    @if (TempData["MensagemFavorito"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["MensagemFavorito"]
+        </div>
+    }
+
+    @if (TempData["MensagemCarrinho"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["MensagemCarrinho"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Fechar"></button>
+        </div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            Você ainda não possui produtos favoritos.
+        </div>
+
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-primary">
+            Conhecer nossos cupcakes
+        </a>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var produto in Model)
+            {
+                bool adicionado =
+                    produtosNoCarrinho.Contains(produto.id_produto);
+
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrWhiteSpace(produto.imagem_url))
+                        {
+                            <img src="@produto.imagem_url"
+                                 class="card-img-top"
+                                 alt="@produto.nome"
+                                 style="height: 200px; object-fit: cover;" />
+                        }
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@produto.nome</h5>
+
+                            <p class="card-text">
+                                @produto.descricao
+                            </p>
+
+                            <p class="fw-bold">
+                                @produto.preco.ToString(
+                                    "C",
+                                    System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))
+                            </p>
+
+                            <small class="text-muted mb-3">
+                                Estoque disponível: @produto.estoque
+                            </small>
+
+                            <form asp-controller="Carrinho"
+                                  asp-action="Adicionar"
+                                  method="post"
+                                  class="mb-2">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@produto.id_produto" />
+
+                                <input type="hidden"
+                                       name="origem"
+                                       value="Favoritos" />
+
+                                <button type="submit"
+                                        class="btn btn-primary w-100"
+                                        disabled="@(produto.estoque == 0 || adicionado)">
+                                    @if (produto.estoque == 0)
+                                    {
+                                        <i class="bi bi-cart-x"></i>
+                                        <text> Sem estoque</text>
+                                    }
+                                    else if (adicionado)
+                                    {
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <text> Adicionado ao carrinho</text>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-cart-plus"></i>
+                                        <text> Adicionar ao carrinho</text>
+                                    }
+                                </button>
+                            </form>
+
+                            <form asp-controller="Favorito"
+                                  asp-action="Remover"
+                                  method="post"
+                                  class="mt-auto">
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="idProduto"
+                                       value="@produto.id_produto" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-danger w-100">
+                                    <i class="bi bi-heartbreak"></i>
+                                    Remover dos favoritos
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

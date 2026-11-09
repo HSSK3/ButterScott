@@ -1,0 +1,113 @@
+
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Gerenciar produtos";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Gerenciar produtos</h2>
+            <p class="text-muted mb-0">
+                Consulte e administre os produtos da loja.
+            </p>
+        </div>
+
+        <a asp-action="Criar" class="btn btn-success">
+            + Novo produto
+        </a>
+    </div>
+
+    @if (TempData["SucessoProduto"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SucessoProduto"]
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Sabor</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var produto = item.Produto;
+                        var categoriaNome = item.CategoriaNome;
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrWhiteSpace((string?)produto.imagem_url))
+                                    {
+                                        <img src="@produto.imagem_url"
+                                             alt="@produto.nome"
+                                             style="width:55px;height:55px;object-fit:cover;border-radius:8px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                             style="width:55px;height:55px;">
+                                            <span class="text-muted small">Sem imagem</span>
+                                        </div>
+                                    }
+
+                                    <strong>@produto.nome</strong>
+                                </div>
+                            </td>
+
+                            <td>@categoriaNome</td>
+                            <td>@produto.sabor</td>
+                            <td>R$ @(((decimal)produto.preco).ToString("N2"))</td>
+                            <td>@produto.estoque</td>
+
+                            <td>
+                                @if (produto.ativo)
+                                {
+                                    <span class="badge bg-success">Ativo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inativo</span>
+                                }
+                            </td>
+
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a asp-action="Editar"
+                                       asp-route-id="@produto.id_produto"
+                                       class="btn btn-sm btn-outline-primary">
+                                        Editar
+                                    </a>
+
+                                    <form asp-action="AlterarStatus"
+                                          asp-route-id="@produto.id_produto"
+                                          method="post">
+                                        @Html.AntiForgeryToken()
+
+                                        <button type="submit"
+                                                class="btn btn-sm @(produto.ativo ? "btn-outline-danger" : "btn-outline-success")">
+                                            @(produto.ativo ? "Desativar" : "Ativar")
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

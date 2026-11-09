@@ -1,0 +1,227 @@
+﻿
+@using Microsoft.AspNetCore.Http
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ButterScott</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ButterScott.styles.css" asp-append-version="true" />
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-light border-bottom shadow-sm mb-4"
+         style="background-color: #fffaf5;">
+        <div class="container">
+            <a class="navbar-brand"
+               asp-area=""
+               asp-controller="Home"
+               asp-action="Index">
+                <img src="~/images/LogoTexto.png"
+                     alt="ButterScott"
+                     style="height: 55px; width: auto; max-width: 190px; object-fit: contain;" />
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarButterScott"
+                    aria-controls="navbarButterScott"
+                    aria-expanded="false"
+                    aria-label="Abrir menu de navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="navbarButterScott">
+                <ul class="navbar-nav ms-auto align-items-sm-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold px-3"
+                           asp-area=""
+                           asp-controller="Home"
+                           asp-action="Index">
+                            Início
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold px-3"
+                           asp-controller="Explorar"
+                           asp-action="Index">
+                            <i class="bi bi-search"></i>
+                            Explorar
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold px-3"
+                           asp-area=""
+                           asp-controller="Home"
+                           asp-action="Privacy">
+                            Privacidade
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold px-3"
+                           asp-area=""
+                           asp-controller="Carrinho"
+                           asp-action="Index">
+                            Meu Carrinho
+                        </a>
+                    </li>
+
+                    @if (Context.Session.GetString("ClienteId") != null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-3"
+                               asp-controller="Favorito"
+                               asp-action="Index">
+                                <i class="bi bi-heart-fill"></i>
+                                Meus Favoritos
+                            </a>
+                        </li>
+                    }
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold px-3"
+                           asp-controller="Pedido"
+                           asp-action="MeusPedidos">
+                            Meus pedidos
+                        </a>
+                    </li>
+
+                    @if (Context.Session.GetString("ClienteId") != null)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-3"
+                               asp-controller="Conta"
+                               asp-action="Perfil">
+                                Meu Perfil
+                            </a>
+                        </li>
+
+                        @if (Context.Session.GetString("EhAdmin") == "true")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-3"
+                                   asp-controller="Admin"
+                                   asp-action="Entregas">
+                                    Gerenciar entregas
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-3"
+                                   asp-controller="Produto"
+                                   asp-action="Index">
+                                    Gerenciar produtos
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-3"
+                                   asp-controller="Categoria"
+                                   asp-action="Index">
+                                    Gerenciar categorias
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold px-3"
+                                   asp-controller="Cupom"
+                                   asp-action="Index">
+                                    Gerenciar cupons
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-3"
+                               asp-controller="Endereco"
+                               asp-action="Index">
+                                Meus endereços
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form asp-controller="Conta"
+                                  asp-action="Logout"
+                                  method="post"
+                                  class="d-inline">
+                                <button type="submit"
+                                        class="nav-link fw-semibold px-3 border-0 bg-transparent">
+                                    Sair
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-3"
+                               asp-controller="Conta"
+                               asp-action="Login">
+                                Entrar
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container mt-0 mb-0">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="footer border-top">
+    <div class="container py-4">
+        <div class="row align-items-center gy-3">
+            <div class="col-md-6 text-center text-md-start">
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index"
+                   class="footer-brand">
+                    <img src="~/images/LogoTexto.png"
+                         alt="ButterScott"
+                         style="height: 45px; width: auto; max-width: 170px; object-fit: contain;" />
+                </a>
+
+                <p class="footer-description mb-0">
+                    Pequenos doces, grandes momentos.
+                </p>
+            </div>
+
+            <div class="col-md-6 text-center text-md-end">
+                <a asp-area=""
+                   asp-controller="Home"
+                   asp-action="Privacy"
+                   class="footer-link">
+                    Privacidade
+                </a>
+
+                <p class="footer-copyright mb-0 mt-2">
+                    &copy; 2026 ButterScott. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

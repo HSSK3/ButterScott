@@ -1,0 +1,161 @@
+
+@model List<ButterScott.Models.Cupom>
+
+@{
+    ViewData["Title"] = "Gerenciar cupons";
+
+    var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1>Gerenciar cupons</h1>
+            <p class="text-muted mb-0">
+                Cadastre e gerencie os cupons de desconto da loja.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="CupomHistorico"
+               asp-action="Index"
+               class="btn btn-info">
+                Histórico de utilizações
+            </a>
+
+            <a asp-action="Criar" class="btn btn-primary">
+                Novo cupom
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SucessoCupom"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SucessoCupom"]
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Nenhum cupom cadastrado até o momento.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Desconto</th>
+                                <th>Pedido mínimo</th>
+                                <th>Utilizações</th>
+                                <th>Validade</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var cupom in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@cupom.codigo</strong>
+                                        @if (!string.IsNullOrWhiteSpace(cupom.descricao))
+                                        {
+                                            <br />
+                                            <small class="text-muted">
+                                                @cupom.descricao
+                                            </small>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (cupom.tipo_desconto == "Percentual")
+                                        {
+                                            @cupom.valor_desconto.ToString("0.##", cultura)
+                                            <span>%</span>
+                                        }
+                                        else
+                                        {
+                                            @cupom.valor_desconto.ToString("C", cultura)
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @cupom.valor_minimo_pedido.ToString("C", cultura)
+                                    </td>
+
+                                    <td>
+                                        @cupom.usos_realizados
+                                        /
+                                        @(cupom.limite_uso?.ToString() ?? "Ilimitado")
+                                    </td>
+
+                                    <td>
+                                        @if (cupom.data_inicio.HasValue ||
+                                             cupom.data_fim.HasValue)
+                                        {
+                                            <small>
+                                                @(cupom.data_inicio?.ToString("dd/MM/yyyy") ?? "Sem início")
+                                                <br />
+                                                até
+                                                <br />
+                                                @(cupom.data_fim?.ToString("dd/MM/yyyy") ?? "Sem término")
+                                            </small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Sem prazo</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (cupom.ativo)
+                                        {
+                                            <span class="badge bg-success">Ativo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inativo</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a asp-action="Editar"
+                                               asp-route-id="@cupom.id_cupom"
+                                               class="btn btn-sm btn-outline-primary">
+                                                Editar
+                                            </a>
+
+                                            <form asp-action="AlterarStatus"
+                                                  asp-route-id="@cupom.id_cupom"
+                                                  method="post"
+                                                  onsubmit="return confirm('Deseja realmente alterar o status deste cupom?');">
+
+                                                @Html.AntiForgeryToken()
+
+                                                <button type="submit"
+                                                        class="btn btn-sm @(cupom.ativo ? "btn-outline-danger" : "btn-outline-success")">
+                                                    @(cupom.ativo ? "Desativar" : "Ativar")
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
