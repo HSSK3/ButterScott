@@ -1,4 +1,3 @@
-
 using ButterScott.Data;
 using ButterScott.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,7 @@ namespace ButterScott.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool continuarCompra = false)
         {
             var clienteIdTexto = HttpContext.Session.GetString("ClienteId");
 
@@ -33,10 +32,12 @@ namespace ButterScott.Controllers
                 .ThenBy(e => e.identificacao)
                 .ToListAsync();
 
+            ViewBag.ContinuarCompra = continuarCompra;
+
             return View(enderecos);
         }
 
-        public IActionResult Criar()
+        public IActionResult Criar(bool continuarCompra = false)
         {
             if (!uint.TryParse(
                 HttpContext.Session.GetString("ClienteId"),
@@ -48,12 +49,16 @@ namespace ButterScott.Controllers
                 return RedirectToAction("Login", "Conta");
             }
 
+            ViewBag.ContinuarCompra = continuarCompra;
+
             return View(new Endereco());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar(Endereco endereco)
+        public async Task<IActionResult> Criar(
+            Endereco endereco,
+            bool continuarCompra = false)
         {
             if (!uint.TryParse(
                 HttpContext.Session.GetString("ClienteId"),
@@ -70,10 +75,21 @@ namespace ButterScott.Controllers
 
             if (!ModelState.IsValid)
             {
+                ViewBag.ContinuarCompra = continuarCompra;
+
                 return View(endereco);
             }
 
             endereco.id_cliente = clienteId;
+
+            // O primeiro endereço cadastrado será definido como principal.
+            bool primeiroEndereco = !await _context.Enderecos
+                .AnyAsync(e => e.id_cliente == clienteId);
+
+            if (primeiroEndereco)
+            {
+                endereco.principal = true;
+            }
 
             _context.Enderecos.Add(endereco);
             await _context.SaveChangesAsync();
@@ -81,8 +97,11 @@ namespace ButterScott.Controllers
             TempData["MensagemEndereco"] =
                 "Endereço cadastrado com sucesso!";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(
+                nameof(Index),
+                new { continuarCompra });
         }
+
         public async Task<IActionResult> Editar(uint id)
         {
             if (!uint.TryParse(
@@ -107,10 +126,12 @@ namespace ButterScott.Controllers
 
             return View(endereco);
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SalvarEdicao(uint id, Endereco endereco)
+        public async Task<IActionResult> SalvarEdicao(
+            uint id,
+            Endereco endereco)
         {
             if (!uint.TryParse(
                 HttpContext.Session.GetString("ClienteId"),
@@ -158,7 +179,6 @@ namespace ButterScott.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Excluir(uint id)
@@ -200,7 +220,6 @@ namespace ButterScott.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DefinirPrincipal(uint id)
@@ -241,6 +260,5 @@ namespace ButterScott.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
     }
 }

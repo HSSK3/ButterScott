@@ -29,9 +29,17 @@ body {
     flex-direction: column;
 
     background-color: var(--bs-fundo);
-    background-image: url('/images/FundoCupcakes.png');
+
+    /* Camada creme para suavizar o papel de parede */
+    background-image:
+        linear-gradient(
+            rgba(255, 250, 245, 0.72),
+            rgba(255, 250, 245, 0.72)
+        ),
+        url('/images/FundoCupcakes.png');
+
     background-repeat: repeat;
-    background-size: 820px auto;
+    background-size: auto, 820px auto;
     background-attachment: fixed;
 }
 
@@ -227,7 +235,7 @@ a:hover {
 
 @media (max-width: 768px) {
     body {
-        background-size: 600px auto;
+        background-size: auto, 600px auto;
         background-attachment: scroll;
     }
 }
